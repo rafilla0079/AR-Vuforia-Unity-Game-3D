@@ -8,6 +8,10 @@ public class GunMobileController : MonoBehaviour
     public GameObject bulletPrefab; // Prefab de la bala 3D
     public Transform firePoint;     // El punto de salida en la punta del cañón
 
+    [Header("Configuración de Audio")]
+    public AudioClip shootSound;    // Arrastra aquí tu archivo de sonido (MP3 o WAV)
+    private AudioSource audioSource; // Componente de audio interno
+
     [Header("Configuración de Animación (Retroceso)")]
     public float recoilAmount = 0.15f;   // Cuánto se echa hacia atrás la pistola
     public float recoilSpeed = 15f;     // Velocidad del retroceso y recuperación
@@ -15,8 +19,15 @@ public class GunMobileController : MonoBehaviour
 
     void Start()
     {
-       
+        // Guardamos la posición local inicial de la pistola
         localOriginalPos = transform.localPosition;
+
+        // Obtenemos o añadimos automáticamente el componente AudioSource en la pistola
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
     }
 
     void Update()
@@ -46,7 +57,13 @@ public class GunMobileController : MonoBehaviour
     {
         if (bulletPrefab == null || firePoint == null || Camera.main == null) return;
 
-       
+        // 1. Reproducir el sonido de disparo
+        if (shootSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(shootSound);
+        }
+
+        // 2. Lanzar un rayo desde la cámara hacia el punto tocado en la pantalla
         Ray ray = Camera.main.ScreenPointToRay(screenPos);
         RaycastHit hit;
 
@@ -62,8 +79,6 @@ public class GunMobileController : MonoBehaviour
 
         
         Quaternion bulletRotation = Quaternion.LookRotation(targetDirection);
-
-        // 3. Instanciar la bala 3D
         Instantiate(bulletPrefab, firePoint.position, bulletRotation);
 
         
@@ -73,11 +88,9 @@ public class GunMobileController : MonoBehaviour
 
     IEnumerator RecoilRoutine()
     {
-        
-
         Vector3 recoilPos = localOriginalPos - new Vector3(0f, 0f, recoilAmount);
 
-        
+        // Mover hacia atrás rápidamente
         float elapsed = 0f;
         while (elapsed < 0.05f)
         {
@@ -86,13 +99,13 @@ public class GunMobileController : MonoBehaviour
             yield return null;
         }
 
-       
+        // Volver suavemente a la posición original
         while (Vector3.Distance(transform.localPosition, localOriginalPos) > 0.001f)
         {
             transform.localPosition = Vector3.Lerp(transform.localPosition, localOriginalPos, Time.deltaTime * recoilSpeed);
             yield return null;
         }
 
-        transform.localPosition = localOriginalPos; 
+        transform.localPosition = localOriginalPos;
     }
 }
