@@ -5,11 +5,13 @@ TagManager:
   serializedVersion: 3
   tags:
   - Ground
+  - FxTemporaire
+  - DamagePanel
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Todo
   - Water
   - UI
   - 
@@ -26,7 +28,7 @@ TagManager:
   - 
   - 
   - 
-  - 
+  - Particulas
   - 
   - 
   - 
@@ -39,8 +41,38 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: New Layer 1
+    uniqueID: 2382142721
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: New Layer 2
+    uniqueID: 564268179
+    locked: 0
+  - name: New Layer 3
+    uniqueID: 81578713
+    locked: 0
+  - name: New Layer 4
+    uniqueID: 2524752227
+    locked: 0
+  - name: New Layer 5
+    uniqueID: 583758913
+    locked: 0
+  - name: New Layer 6
+    uniqueID: 1208745627
+    locked: 0
+  - name: New Layer 7
+    uniqueID: 1666860295
+    locked: 0
+  - name: New Layer 8
+    uniqueID: 3709185537
+    locked: 0
+  - name: New Layer 9
+    uniqueID: 14891161
+    locked: 0
+  - name: New Layer 10
+    uniqueID: 1826493097
     locked: 0
   m_RenderingLayers:
   - Default

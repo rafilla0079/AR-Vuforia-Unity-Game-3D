@@ -10,15 +10,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 75225759109262660, guid: 9137848d2fc4040498cf6010e425fe63, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.5
+      value: 2.1137
       objectReference: {fileID: 0}
     - target: {fileID: 75225759109262660, guid: 9137848d2fc4040498cf6010e425fe63, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.5
+      value: 2.1137
       objectReference: {fileID: 0}
     - target: {fileID: 75225759109262660, guid: 9137848d2fc4040498cf6010e425fe63, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.5
+      value: 2.1137
       objectReference: {fileID: 0}
     - target: {fileID: 75225759109262660, guid: 9137848d2fc4040498cf6010e425fe63, type: 3}
       propertyPath: m_LocalPosition.x
@@ -99,6 +99,52 @@ MonoBehaviour:
   type: 1
   pointsValue: -5
   healthChange: 1
+  floatingTextPrefab: {fileID: 167392233761189773, guid: 1cdedcb037da8ce43b3aaf6ae4d65230, type: 3}
+  particleEffectPrefab: {fileID: 0}
+  destructionSprite: {fileID: 6989642852348889387, guid: d25aa779d95a7184caf722957a2871de, type: 3}
+  duracionSpriteDestruccion: 0.25
+  multiplicadorTamanoObjeto: 1
+  curvaTamanoSprite:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.5
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.5
+      value: 1.3
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  rotacionOffsetZ: 0
+  giroAleatorioSuave: 0
+  tintSprite: {r: 1, g: 1, b: 1, a: 1}
+  damagePanelObject: {fileID: 0}
+  tagPanelDano: DamagePanel
+  duracionPanelDano: 0.25
+  hitSound: {fileID: 8300000, guid: 4548cf186f481f64aa65752d32916957, type: 3}
+  soundVolume: 1
 --- !u!54 &6262391809272343357
 Rigidbody:
   m_ObjectHideFlags: 0

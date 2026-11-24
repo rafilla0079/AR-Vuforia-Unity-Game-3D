@@ -13,6 +13,18 @@ PrefabInstance:
       value: Skull Variant
       objectReference: {fileID: 0}
     - target: {fileID: 3294232276668384411, guid: 5daff121de6826f4c8029fda5e22b206, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2.1137
+      objectReference: {fileID: 0}
+    - target: {fileID: 3294232276668384411, guid: 5daff121de6826f4c8029fda5e22b206, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2.1137
+      objectReference: {fileID: 0}
+    - target: {fileID: 3294232276668384411, guid: 5daff121de6826f4c8029fda5e22b206, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2.1137
+      objectReference: {fileID: 0}
+    - target: {fileID: 3294232276668384411, guid: 5daff121de6826f4c8029fda5e22b206, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.6246293
       objectReference: {fileID: 0}
@@ -51,6 +63,26 @@ PrefabInstance:
     - target: {fileID: 3294232276668384411, guid: 5daff121de6826f4c8029fda5e22b206, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7951012988789158854, guid: 5daff121de6826f4c8029fda5e22b206, type: 3}
+      propertyPath: hitSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 4548cf186f481f64aa65752d32916957, type: 3}
+    - target: {fileID: 7951012988789158854, guid: 5daff121de6826f4c8029fda5e22b206, type: 3}
+      propertyPath: tagPanelDano
+      value: DamagePanel
+      objectReference: {fileID: 0}
+    - target: {fileID: 7951012988789158854, guid: 5daff121de6826f4c8029fda5e22b206, type: 3}
+      propertyPath: destructionSprite
+      value: 
+      objectReference: {fileID: 6989642852348889387, guid: d25aa779d95a7184caf722957a2871de, type: 3}
+    - target: {fileID: 7951012988789158854, guid: 5daff121de6826f4c8029fda5e22b206, type: 3}
+      propertyPath: floatingTextPrefab
+      value: 
+      objectReference: {fileID: 167392233761189773, guid: 1cdedcb037da8ce43b3aaf6ae4d65230, type: 3}
+    - target: {fileID: 7951012988789158854, guid: 5daff121de6826f4c8029fda5e22b206, type: 3}
+      propertyPath: particleEffectPrefab
+      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

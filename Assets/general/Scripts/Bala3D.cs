@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class Bullet3D : MonoBehaviour
 {
-    public float speed = 20f;
-    public float lifetime = 3f;
+    public float speed = 40f;
+    public float lifetime = 2f; 
 
     void Start()
     {
@@ -15,14 +15,5 @@ public class Bullet3D : MonoBehaviour
         transform.Translate(Vector3.forward * speed * Time.deltaTime);
     }
 
-    void OnCollisionEnter(Collision collision)
-    {
-        DestructibleObject target = collision.gameObject.GetComponent<DestructibleObject>();
-        if (target != null)
-        {
-            target.RecibirImpacto();
-        }
-
-        Destroy(gameObject);
-    }
+    
 }
