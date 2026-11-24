@@ -1110,7 +1110,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 9a2f0a3a2b5fdf347968defc83ed85ba, type: 3}
+  m_Resource: {fileID: 8300000, guid: 28aad3a91bacc4448a3202b805118f2a, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -1962,6 +1962,9 @@ MonoBehaviour:
   escalaHoverOPresion: 1.15
   escalaPulso: 0.92
   velocidadEscala: 12
+  particulasClick: {fileID: 0}
+  offsetZParticulas: -1
+  instanciarPrefabSiEsPrefab: 1
   sonidoClick: {fileID: 8300000, guid: 0b927445d833087468c187e9440171d5, type: 3}
 --- !u!4 &1713476011
 Transform:

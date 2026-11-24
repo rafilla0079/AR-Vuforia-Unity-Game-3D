@@ -19,6 +19,11 @@ public class MenuCanvasController : MonoBehaviour
     public float escalaPulso = 0.92f;
     public float velocidadEscala = 12f;
 
+    [Header("Efecto de Partículas al Pulsar")]
+    public ParticleSystem particulasClick; 
+    public float offsetZParticulas = -1f; 
+    public bool instanciarPrefabSiEsPrefab = true;
+
     [Header("Audio Opcional")]
     public AudioClip sonidoClick;
     private AudioSource audioSource;
@@ -75,22 +80,18 @@ public class MenuCanvasController : MonoBehaviour
             trigger = boton.gameObject.AddComponent<EventTrigger>();
         }
 
-       
         EventTrigger.Entry pointerEnter = new EventTrigger.Entry { eventID = EventTriggerType.PointerEnter };
         pointerEnter.callback.AddListener((_) => SetResaltado(esJugar, true));
         trigger.triggers.Add(pointerEnter);
 
-   
         EventTrigger.Entry pointerExit = new EventTrigger.Entry { eventID = EventTriggerType.PointerExit };
         pointerExit.callback.AddListener((_) => SetResaltado(esJugar, false));
         trigger.triggers.Add(pointerExit);
 
-      
         EventTrigger.Entry pointerDown = new EventTrigger.Entry { eventID = EventTriggerType.PointerDown };
         pointerDown.callback.AddListener((_) => SetResaltado(esJugar, true));
         trigger.triggers.Add(pointerDown);
 
-       
         EventTrigger.Entry pointerUp = new EventTrigger.Entry { eventID = EventTriggerType.PointerUp };
         pointerUp.callback.AddListener((_) => SetResaltado(esJugar, false));
         trigger.triggers.Add(pointerUp);
@@ -136,10 +137,33 @@ public class MenuCanvasController : MonoBehaviour
         StartCoroutine(EjecutarAccionBoton(botonSalir.transform, escalaOriginalSalir, SalirDelJuego));
     }
 
+    private void EmitirParticulasEnBoton(Transform botonTransform)
+    {
+        if (particulasClick == null || botonTransform == null) return;
+
+        Vector3 posicionSpawn = botonTransform.position + new Vector3(0f, 0f, offsetZParticulas);
+
+        if (instanciarPrefabSiEsPrefab && !particulasClick.gameObject.scene.IsValid())
+        {
+            ParticleSystem instancia = Instantiate(particulasClick, posicionSpawn, Quaternion.identity);
+            instancia.Play();
+            float duracionTotal = instancia.main.duration + instancia.main.startLifetime.constantMax;
+            Destroy(instancia.gameObject, Mathf.Max(0.5f, duracionTotal));
+        }
+        else
+        {
+            particulasClick.transform.position = posicionSpawn;
+            particulasClick.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            particulasClick.Play();
+        }
+    }
+
     private IEnumerator EjecutarAccionBoton(Transform tr, Vector3 escalaBase, System.Action accionFinal)
     {
         accionEnProceso = true;
         SetBotonesInteractuables(false);
+
+        EmitirParticulasEnBoton(tr);
 
         if (sonidoClick != null && audioSource != null)
         {
@@ -148,7 +172,6 @@ public class MenuCanvasController : MonoBehaviour
 
         float duracionPaso = Mathf.Max(0.02f, retrasoAccion * 0.5f);
 
-     
         float tiempo = 0f;
         Vector3 escalaInicial = tr.localScale;
         Vector3 escalaPulsada = escalaBase * escalaPulso;
@@ -159,7 +182,6 @@ public class MenuCanvasController : MonoBehaviour
             yield return null;
         }
 
-       
         tiempo = 0f;
         Vector3 escalaRebote = escalaBase * escalaHoverOPresion;
         while (tiempo < duracionPaso)
