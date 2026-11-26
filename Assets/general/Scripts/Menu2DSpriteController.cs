@@ -19,10 +19,27 @@ public class MenuCanvasController : MonoBehaviour
     public float escalaPulso = 0.92f;
     public float velocidadEscala = 12f;
 
-    [Header("Efecto de Partículas al Pulsar")]
-    public ParticleSystem particulasClick; 
-    public float offsetZParticulas = -1f; 
-    public bool instanciarPrefabSiEsPrefab = true;
+    [Header("Efecto de Partículas Sprite al Pulsar")]
+    public Sprite spriteParticulaClick;
+    [Min(1)]
+    public int cantidadParticulasClick = 10;
+    public Vector2 tamanoParticulaClick = new Vector2(28f, 28f);
+    public float velocidadParticulaClick = 220f;
+    public float duracionParticulaClick = 0.45f;
+    public bool rotarParticulasHaciaDireccion = true;
+
+    [Header("Animación Bala Sprite 2D (Botón Jugar)")]
+    public Sprite spriteBala2D;
+    public Vector2 tamanoBala = new Vector2(120f, 36f);
+    [Tooltip("Rotación")]
+    public float rotacionBalaZ = 0f;
+    [Tooltip("Altura relativa en pantalla (0 = abajo, 0.5 = centro, 1 = arriba).")]
+    [Range(0f, 1f)]
+    public float alturaRelativaPantalla = 0.5f;
+    public float duracionCruceBala = 0.45f;
+    public float margenLateral = 150f;
+    public float retrasoTrasBala = 0.05f;
+    public AudioClip sonidoBala;
 
     [Header("Audio Opcional")]
     public AudioClip sonidoClick;
@@ -37,7 +54,7 @@ public class MenuCanvasController : MonoBehaviour
     void Awake()
     {
         audioSource = GetComponent<AudioSource>();
-        if (audioSource == null && sonidoClick != null)
+        if (audioSource == null && (sonidoClick != null || sonidoBala != null))
         {
             audioSource = gameObject.AddComponent<AudioSource>();
         }
@@ -113,7 +130,7 @@ public class MenuCanvasController : MonoBehaviour
         objetivo.localScale = Vector3.Lerp(
             objetivo.localScale,
             escalaObjetivo,
-            Time.deltaTime * velocidadEscala
+            Time.unscaledDeltaTime * velocidadEscala
         );
     }
 
@@ -121,13 +138,84 @@ public class MenuCanvasController : MonoBehaviour
     {
         if (accionEnProceso || botonJugar == null) return;
 
-        StartCoroutine(EjecutarAccionBoton(botonJugar.transform, escalaOriginalJugar, () =>
+        StartCoroutine(SecuenciaJugarConBala());
+    }
+
+    private IEnumerator SecuenciaJugarConBala()
+    {
+        yield return StartCoroutine(EjecutarAccionBoton(botonJugar.transform, escalaOriginalJugar, null));
+
+        yield return StartCoroutine(AnimarBalaCruzandoPantalla());
+
+        if (retrasoTrasBala > 0f)
         {
-            if (!string.IsNullOrEmpty(nombreEscenaJuego))
-            {
-                SceneManager.LoadScene(nombreEscenaJuego);
-            }
-        }));
+            yield return new WaitForSecondsRealtime(retrasoTrasBala);
+        }
+
+        if (!string.IsNullOrEmpty(nombreEscenaJuego))
+        {
+            SceneManager.LoadScene(nombreEscenaJuego);
+        }
+    }
+
+    private IEnumerator AnimarBalaCruzandoPantalla()
+    {
+        if (spriteBala2D == null)
+        {
+            yield break;
+        }
+
+        Canvas canvasPadre = GetComponentInParent<Canvas>();
+        if (canvasPadre == null)
+        {
+            canvasPadre = FindObjectOfType<Canvas>();
+        }
+        if (canvasPadre == null)
+        {
+            yield break;
+        }
+
+        RectTransform rectCanvas = canvasPadre.GetComponent<RectTransform>();
+        GameObject goBala = new GameObject("Bala2D_Transicion", typeof(RectTransform), typeof(Image));
+        goBala.transform.SetParent(rectCanvas, false);
+
+        Image balaInstancia = goBala.GetComponent<Image>();
+        balaInstancia.sprite = spriteBala2D;
+        balaInstancia.raycastTarget = false;
+
+        RectTransform rectBala = balaInstancia.rectTransform;
+        rectBala.SetAsLastSibling();
+        rectBala.sizeDelta = tamanoBala;
+        rectBala.localRotation = Quaternion.Euler(0f, 0f, rotacionBalaZ);
+
+        float anchoCanvas = rectCanvas.rect.width;
+        float altoCanvas = rectCanvas.rect.height;
+
+        float posXInicio = -anchoCanvas * 0.5f - margenLateral;
+        float posXFin = anchoCanvas * 0.5f + margenLateral;
+        float posY = (alturaRelativaPantalla - 0.5f) * altoCanvas;
+
+        Vector2 inicio = new Vector2(posXInicio, posY);
+        Vector2 fin = new Vector2(posXFin, posY);
+        rectBala.anchoredPosition = inicio;
+
+        if (sonidoBala != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(sonidoBala);
+        }
+
+        float tiempo = 0f;
+        float duracion = Mathf.Max(0.05f, duracionCruceBala);
+        while (tiempo < duracion)
+        {
+            tiempo += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(tiempo / duracion);
+            rectBala.anchoredPosition = Vector2.Lerp(inicio, fin, t);
+            yield return null;
+        }
+
+        rectBala.anchoredPosition = fin;
+        Destroy(goBala);
     }
 
     private void OnClickSalir()
@@ -139,23 +227,102 @@ public class MenuCanvasController : MonoBehaviour
 
     private void EmitirParticulasEnBoton(Transform botonTransform)
     {
-        if (particulasClick == null || botonTransform == null) return;
+        if (spriteParticulaClick == null || botonTransform == null) return;
 
-        Vector3 posicionSpawn = botonTransform.position + new Vector3(0f, 0f, offsetZParticulas);
-
-        if (instanciarPrefabSiEsPrefab && !particulasClick.gameObject.scene.IsValid())
+        Canvas canvasPadre = botonTransform.GetComponentInParent<Canvas>();
+        if (canvasPadre == null)
         {
-            ParticleSystem instancia = Instantiate(particulasClick, posicionSpawn, Quaternion.identity);
-            instancia.Play();
-            float duracionTotal = instancia.main.duration + instancia.main.startLifetime.constantMax;
-            Destroy(instancia.gameObject, Mathf.Max(0.5f, duracionTotal));
+            canvasPadre = FindObjectOfType<Canvas>();
+        }
+        if (canvasPadre == null) return;
+
+        RectTransform rectCanvas = canvasPadre.GetComponent<RectTransform>();
+        RectTransform rectBoton = botonTransform as RectTransform;
+
+        Vector2 puntoLocalEnCanvas;
+        if (rectBoton != null)
+        {
+            Vector3 centroMundo = rectBoton.TransformPoint(rectBoton.rect.center);
+            Vector2 puntoPantalla = RectTransformUtility.WorldToScreenPoint(
+                canvasPadre.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvasPadre.worldCamera,
+                centroMundo
+            );
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                rectCanvas,
+                puntoPantalla,
+                canvasPadre.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvasPadre.worldCamera,
+                out puntoLocalEnCanvas
+            );
         }
         else
         {
-            particulasClick.transform.position = posicionSpawn;
-            particulasClick.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-            particulasClick.Play();
+            puntoLocalEnCanvas = Vector2.zero;
         }
+
+        int total = Mathf.Max(1, cantidadParticulasClick);
+        for (int i = 0; i < total; i++)
+        {
+            float anguloBase = (360f / total) * i;
+            float angulo = (anguloBase + Random.Range(-18f, 18f)) * Mathf.Deg2Rad;
+            Vector2 direccion = new Vector2(Mathf.Cos(angulo), Mathf.Sin(angulo)).normalized;
+            float velocidad = velocidadParticulaClick * Random.Range(0.75f, 1.25f);
+
+            StartCoroutine(AnimarParticulaSprite(
+                rectCanvas,
+                puntoLocalEnCanvas,
+                direccion,
+                velocidad,
+                duracionParticulaClick * Random.Range(0.8f, 1.15f)
+            ));
+        }
+    }
+
+    private IEnumerator AnimarParticulaSprite(
+        RectTransform rectCanvas,
+        Vector2 posicionInicial,
+        Vector2 direccion,
+        float velocidad,
+        float duracion
+    )
+    {
+        GameObject goParticula = new GameObject("ParticulaSprite_Click", typeof(RectTransform), typeof(CanvasGroup), typeof(Image));
+        goParticula.transform.SetParent(rectCanvas, false);
+
+        RectTransform rectP = goParticula.GetComponent<RectTransform>();
+        rectP.SetAsLastSibling();
+        rectP.anchoredPosition = posicionInicial;
+        rectP.sizeDelta = tamanoParticulaClick;
+
+        if (rotarParticulasHaciaDireccion)
+        {
+            float anguloZ = Mathf.Atan2(direccion.y, direccion.x) * Mathf.Rad2Deg;
+            rectP.localRotation = Quaternion.Euler(0f, 0f, anguloZ);
+        }
+
+        Image imgP = goParticula.GetComponent<Image>();
+        imgP.sprite = spriteParticulaClick;
+        imgP.raycastTarget = false;
+
+        CanvasGroup cg = goParticula.GetComponent<CanvasGroup>();
+        cg.alpha = 1f;
+
+        float tiempo = 0f;
+        float duracionSegura = Mathf.Max(0.05f, duracion);
+        Vector3 escalaInicial = rectP.localScale;
+
+        while (tiempo < duracionSegura)
+        {
+            tiempo += Time.unscaledDeltaTime;
+            float t = Mathf.Clamp01(tiempo / duracionSegura);
+
+            rectP.anchoredPosition += direccion * velocidad * Time.unscaledDeltaTime;
+            rectP.localScale = Vector3.Lerp(escalaInicial, escalaInicial * 0.35f, t);
+            cg.alpha = 1f - t;
+
+            yield return null;
+        }
+
+        Destroy(goParticula);
     }
 
     private IEnumerator EjecutarAccionBoton(Transform tr, Vector3 escalaBase, System.Action accionFinal)
@@ -178,7 +345,7 @@ public class MenuCanvasController : MonoBehaviour
         while (tiempo < duracionPaso)
         {
             tr.localScale = Vector3.Lerp(escalaInicial, escalaPulsada, tiempo / duracionPaso);
-            tiempo += Time.deltaTime;
+            tiempo += Time.unscaledDeltaTime;
             yield return null;
         }
 
@@ -187,7 +354,7 @@ public class MenuCanvasController : MonoBehaviour
         while (tiempo < duracionPaso)
         {
             tr.localScale = Vector3.Lerp(escalaPulsada, escalaRebote, tiempo / duracionPaso);
-            tiempo += Time.deltaTime;
+            tiempo += Time.unscaledDeltaTime;
             yield return null;
         }
 
